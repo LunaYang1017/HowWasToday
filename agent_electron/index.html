@@ -197,6 +197,7 @@
         <div class="cfg-row">
             <label for="model-select">模型</label>
             <select id="model-select" class="cfg-select">
+                <option value="deepseek/deepseek-v3.2-251201">试用模型</option>
                 <option value="deepseek-chat">DeepSeek Chat</option>
                 <option value="deepseek-reasoner">DeepSeek Reasoner</option>
                 <option value="gpt-4o-mini">GPT-4o Mini</option>
@@ -212,8 +213,16 @@
             <input type="text" id="api-key" class="cfg-input" placeholder="输入你自己的 API Key">
         </div>
         <div class="cfg-row">
-            <label for="tavily-api-key">Tavily Search API Key (选填)</label>
-            <input type="text" id="tavily-api-key" class="cfg-input" placeholder="输入Tavily Key实现联网搜索">
+            <label for="search-provider">搜索接口</label>
+            <select id="search-provider" class="cfg-select">
+                <option value="qnaigc">试用模型 (自带联网额度)</option>
+                <option value="tavily">Tavily Search</option>
+                <option value="none">关闭搜索</option>
+            </select>
+        </div>
+        <div class="cfg-row" id="tavily-api-key-row">
+            <label for="tavily-api-key">搜索 API Key (选填)</label>
+            <input type="text" id="tavily-api-key" class="cfg-input" placeholder="输入第三方搜索的Key">
         </div>
         <button class="cfg-save" onclick="saveConfig()">保存并重启</button>
         <button class="cfg-danger" onclick="clearChatHistory()">清空聊天记录</button>
