@@ -1,0 +1,18 @@
+﻿/test/
+*.pdf
+
+# 隐私与配置数据
+**/config.json
+**/.env
+**/memory.json
+**/user_memory.json
+
+# Node & 内核
+**/node_modules/
+
+# Python缓存与打包
+**/.venv/
+**/__pycache__/
+**/build/
+**/dist/
+**/*.spec
