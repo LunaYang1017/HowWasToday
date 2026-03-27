@@ -1,0 +1,19 @@
+{
+  "name": "life-partner-ai",
+  "version": "1.0.0",
+  "description": "Obsidian风格的桌面生活搭子 (Electron版)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-builder -w"
+  },
+  "dependencies": {
+    "@electron/remote": "^2.1.3",
+    "@tavily/core": "^0.7.2",
+    "openai": "^4.28.0"
+  },
+  "devDependencies": {
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1"
+  }
+}

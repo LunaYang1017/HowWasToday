@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: rgba(26, 26, 26, 0.92);
+            color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            -webkit-app-region: drag; /* 顶层可拖拽 */
+        }
+        #title-bar {
+            height: 30px;
+            display: flex;
+            justify-content: flex-end;
+            padding: 5px 10px;
+            align-items: center;
+        }
+        .btn {
+            cursor: pointer;
+            -webkit-app-region: no-drag;
+            margin-left: 12px;
+            color: #888;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        .btn:hover {
+            color: white;
+        }
+        #chat-area {
+            flex: 1;
+            overflow-y: overlay; /* 滚动条悬浮在内容之上 */
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            -webkit-app-region: no-drag;
+        }
+        /* 自定义滚动条样式 */
+        #chat-area::-webkit-scrollbar {
+            width: 5px;
+        }
+        #chat-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #chat-area::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        #chat-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .bubble {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        .user { align-self: flex-end; background: #EAEAEA; color: black; }
+        .agent { align-self: flex-start; background: #2b2b2b; color: white; }
+        
+        #input-area {
+            padding: 10px;
+            padding-bottom: 15px;
+            -webkit-app-region: no-drag;
+            background: rgba(30, 30, 30, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #input-container {
+            flex: 1;
+            position: relative;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box; 
+            background: #333;
+            border: 1px solid #444;
+            color: #eee;
+            padding: 8px 15px;
+            border-radius: 20px;
+            outline: none;
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #666;
+        }
+        .send-btn {
+            cursor: pointer;
+            color: #888;
+            font-size: 18px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        .send-btn:hover {
+            color: white;
+        }
+        /* 设置面板 */
+        #config-overlay {
+            display: none;
+            position: absolute;
+            top: 30px; bottom: 60px; left: 0; right: 0;
+            background: #2b2b2b;
+            padding: 20px;
+            -webkit-app-region: no-drag;
+        }
+        .cfg-title {
+            margin: 0 0 14px 0;
+            font-size: 16px;
+            color: #e8e8e8;
+        }
+        .cfg-row {
+            margin-bottom: 10px;
+        }
+        .cfg-row label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: #aaa;
+        }
+        .cfg-input,
+        .cfg-select {
+            width: 100%;
+            box-sizing: border-box;
+            background: #333;
+            border: 1px solid #444;
+            color: #eee;
+            padding: 8px 10px;
+            border-radius: 8px;
+            outline: none;
+            font-size: 13px;
+        }
+        .cfg-select {
+            appearance: none;
+        }
+        .cfg-save {
+            margin-top: 14px;
+            width: 100%;
+            padding: 10px;
+            background: #3a3a3a;
+            color: #f0f0f0;
+            border: 1px solid #555;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .cfg-save:hover {
+            background: #444;
+        }
+        .cfg-danger {
+            margin-top: 8px;
+            width: 100%;
+            padding: 10px;
+            background: #2f2f2f;
+            color: #ffb3b3;
+            border: 1px solid #6a3b3b;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .cfg-danger:hover {
+            background: #3b2a2a;
+        }
+    </style>
+</head>
+<body>
+    <div id="title-bar">
+        <span class="btn" onclick="toggleDiary()" title="日记">�</span>
+        <span class="btn" onclick="toggleConfig()" title="设置">⚙</span>
+        <span class="btn" onclick="window.close()" title="关闭">✖</span>
+    </div>
+
+    <div id="chat-area"></div>
+
+    <div id="input-area">
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="写点什么...">
+        </div>
+        <div class="send-btn" onclick="sendMessage()" title="发送">➜</div>
+    </div>
+
+    <div id="config-overlay">
+        <h3 class="cfg-title">设置</h3>
+        <div class="cfg-row">
+            <label for="model-select">模型</label>
+            <select id="model-select" class="cfg-select">
+                <option value="deepseek-chat">DeepSeek Chat</option>
+                <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                <option value="gpt-4o-mini">GPT-4o Mini</option>
+                <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
+            </select>
+        </div>
+        <div class="cfg-row">
+            <label for="base-url-input">接口网址</label>
+            <input type="text" id="base-url-input" class="cfg-input" placeholder="https://api.deepseek.com">
+        </div>
+        <div class="cfg-row">
+            <label for="api-key">API Key</label>
+            <input type="text" id="api-key" class="cfg-input" placeholder="输入你自己的 API Key">
+        </div>
+        <div class="cfg-row">
+            <label for="tavily-api-key">Tavily Search API Key (选填)</label>
+            <input type="text" id="tavily-api-key" class="cfg-input" placeholder="输入Tavily Key实现联网搜索">
+        </div>
+        <button class="cfg-save" onclick="saveConfig()">保存并重启</button>
+        <button class="cfg-danger" onclick="clearChatHistory()">清空聊天记录</button>
+    </div>
+
+    <!-- 日记面板 -->
+    <div id="diary-overlay" style="display: none; position: absolute; top: 30px; bottom: 60px; left: 0; right: 0; background: #2b2b2b; padding: 20px; -webkit-app-region: no-drag; overflow-y: auto;">
+        <h3 class="cfg-title">我的日记</h3>
+        
+        <div class="cfg-row">
+            <label for="diary-date-select">选择日期</label>
+            <select id="diary-date-select" class="cfg-select" onchange="loadDiary(this.value)">
+                <!-- 动态填充 -->
+            </select>
+        </div>
+        
+        <div id="diary-content" style="margin-top: 15px; padding: 15px; background: #333; border-radius: 8px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; min-height: 150px; color: #eee;">
+            这里会显示长篇日记内容...
+        </div>
+
+        <button class="cfg-save" onclick="generateDiaryNow()" style="margin-top:20px;">生成今日日记</button>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
